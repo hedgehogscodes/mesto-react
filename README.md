@@ -19,7 +19,7 @@
 9. Webpack.
 10. REACT.js
 
-* [Ссылка на GitHub Pages](https://hedgehogscodes.github.io/mesto/)
+* [Ссылка на GitHub Pages](https://hedgehogscodes.github.io/mesto-react/)
 
 
 # Getting Started with Create React App
