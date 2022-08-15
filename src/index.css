@@ -2,7 +2,7 @@
 @import url(./blocks/page/page.css);
 @import url(./blocks/page/_hiddened/page_hiddened.css);
 
-@import url(./fonts/inter.css);
+@import url(./vendor/fonts/inter.css);
 @import url(./blocks/container/container.css);
 @import url(./blocks/contaner-inner/contaner-inner.css);
 
