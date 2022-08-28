@@ -8,6 +8,7 @@ import EditProfilePopup from "./EditProfilePopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
 import { api } from "../utils/api.js";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 function App() {
   // ----------------Хуки useState для состояний попапов-------------------------
@@ -22,8 +23,12 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [selectedCard, setSelectedCard] = React.useState({});
+  const [cardDelete, setCardDelete] = React.useState({});
   // ----------------------------------------------------------------------------
 
+  //--------Состояние выполнения запроса ----------------------------------------
+  const [isLoading, setLoading] = React.useState(false);
+  // ----------------------------------------------------------------------------
 
   //--------Функции обрабатывающие нажатия кнопок -------------------------------
   function handleEditAvatarClick(){
@@ -38,9 +43,19 @@ function App() {
     setIsPopupAddOpen(true);
   }
 
-  function handleDeleteCardClick() {
+  function handleDeleteCardClick(card) {
     setDeleteCardPopupOpen(true);
+    setCardDelete(card);
   }
+
+  function handleCardClick(card) {
+    setSelectedCard({
+      isOpen: true,
+      link: card.link,
+      title: card.name,
+    });
+  }
+
   // ----------------------------------------------------------------------------
 
 
@@ -51,19 +66,69 @@ function App() {
     setIsPopupAddOpen(false);
     setDeleteCardPopupOpen(false);
     setSelectedCard({ isOpen: false });
-    
+    setLoading(false);
   }
   //-----------------------------------------------------------------------------
 
-  //--------Функция обрабатывающая нажатие по карточке --------------------------
-  function handleCardClick(card) {
-    setSelectedCard({
-      isOpen: true,
-      link: card.link,
-      title: card.name,
-    });
+
+  //--------Функции обрабатывающие Сабмиты --------------------------------------
+  function handleUpdateUser({ name, status }) {
+    setLoading(true);
+    api
+      .saveUserInfo({ name, status })
+      .then((result) => {
+        setCurrentUser(result);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(`Error ${err}`));
   }
-  // ----------------------------------------------------------------------------
+
+  function handleUpdateAvatar({ link }) {
+    setLoading(true);
+    api
+      .editAvatar(link)
+      .then((result) => {
+        setCurrentUser(result);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(`Error ${err}`));
+  }
+
+  function handleAddPlaceSubmit({ title, link }) {
+    setLoading(true);
+    api
+      .addCard({ title, link })
+      .then((newCard) => {
+        setCards([newCard, ...cards]);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(`Error ${err}`));
+  }
+
+  function handleCardLike(card) {
+    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
+      .then((newCard) => {
+        const newCards = cards.map((c) => (c._id === card._id ? newCard : c));
+        setCards(newCards);
+      })
+      .catch((err) => console.log(`Error ${err}`));
+  }
+
+  function handleCardDelete(card) {
+    setLoading(true);
+    api
+      .deleteCard(card._id)
+      .then(() => {
+        const newCards = cards.filter((c) => c._id !== card._id);
+        setCards(newCards);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(`Error ${err}`));
+  }
+//-----------------------------------------------------------------------------
+
 
   React.useEffect(() => {
     const promises = [api.getUserInfo(), api.getInitialCards()];
@@ -78,51 +143,62 @@ function App() {
 
 
   return (
-    <div className="page">
-      <div className="container">
-        <Header />
-        <Main  
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          cards={cards}
-          currentUser={currentUser}
-          onCardDelete={handleDeleteCardClick}
+    <CurrentUserContext.Provider value={currentUser}>
+      <div className="page">
+        <div className="container">
+          <Header />
+          <Main  
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            cards={cards}
+            onCardDelete={handleDeleteCardClick}
+            onCardLike={handleCardLike}
+          />
+          <Footer />
+        </div>
+
+        <EditAvatarPopup
+          isOpen={isPopupAvatarOpen}
+          onClose={closeAllPopups}
+          onUpdateAvatar={handleUpdateAvatar}
+          isLoading={isLoading}
         />
-        <Footer />
+
+        
+        <EditProfilePopup
+          isOpen={isPopupEditOpen}
+          onClose={closeAllPopups}
+          onUpdateUser={handleUpdateUser}
+          isLoading={isLoading}
+        />
+        
+
+        <AddPlacePopup
+          isOpen={isPopupAddOpen}
+          onClose={closeAllPopups}
+          onAddPlace={handleAddPlaceSubmit}
+          isLoading={isLoading}
+        />
+
+        <DeleteCardPopup
+          card={cardDelete}
+          isOpen={isDeleteCardPopupOpen}
+          onClose={closeAllPopups}
+          onCardDelete={handleCardDelete}
+          isLoading={isLoading}
+        />
+        
+
+        <ImagePopup
+          card={selectedCard}
+          isOpen={selectedCard.isOpen}
+          onClose={closeAllPopups}
+        />
+        
       </div>
-
-      <EditAvatarPopup
-        isOpen={isPopupAvatarOpen}
-        onClose={closeAllPopups}
-      />
-
-      
-      <EditProfilePopup
-        isOpen={isPopupEditOpen}
-        onClose={closeAllPopups}
-      />
-      
-
-      <AddPlacePopup
-        isOpen={isPopupAddOpen}
-        onClose={closeAllPopups}
-      />
-
-      <DeleteCardPopup
-        isOpen={isDeleteCardPopupOpen}
-        onClose={closeAllPopups}
-      />
-      
-
-      <ImagePopup
-        card={selectedCard}
-        isOpen={selectedCard.isOpen}
-        onClose={closeAllPopups}
-      />
-      
-    </div>
+    </CurrentUserContext.Provider>
   );
 }
 

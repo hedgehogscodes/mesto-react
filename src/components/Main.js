@@ -1,7 +1,10 @@
 import React from "react";
 import Card from "./Card.js";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick, cards , currentUser, onCardDelete}) {
+function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick, cards,  onCardDelete, onCardLike}) {
+  const currentUser = React.useContext(CurrentUserContext);
+  // console.log(onCardLike);
   return (
     <main className="content contaner-inner">
       <section className="profile">
@@ -24,8 +27,8 @@ function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick, cards , cu
             name={props.name}
             likes={props.likes}
             onCardClick={onCardClick}
-            currentUser={currentUser}
             onCardDelete={onCardDelete}
+            onCardLike={onCardLike}
           />
         ))}
         </ul>

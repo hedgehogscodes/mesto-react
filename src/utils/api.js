@@ -84,29 +84,21 @@ export default class Api {
   }
   /////////////////////////////////////////////////////////////////////
 
-  //////////////////Add Like /////////////////////////////////////////
-  addLike(cardId) {
+  //////////////////Add or delete Like  ///////////////////////////////
+  changeLikeCardStatus(cardId, isLiked) {
     return fetch(`${this._token}/cards/likes/${cardId}`, {
-        method: 'PUT',
-        headers: {
-          authorization: this._authorization,
-          'Content-Type': this._contentType
-        }
-      })
-      .then(this._checkResponse);
-  }
-  /////////////////////////////////////////////////////////////////////
+      method: isLiked ? "PUT" : "DELETE",
+      headers: {
+        authorization: this._authorization,
+        "Content-Type": this._contentType,
+      },
+    }).then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
 
-  //////////////////Del Like /////////////////////////////////////////
-  deleteLike(cardId) {
-    return fetch(`${this._token}/cards/likes/${cardId}`, {
-        method: 'DELETE',
-        headers: {
-          authorization: this._authorization,
-          'Content-Type': this._contentType
-        }
-      })
-      .then(this._checkResponse);
+      return Promise.reject(`Ошибка: ${res.status}`);
+    });
   }
   /////////////////////////////////////////////////////////////////////
 

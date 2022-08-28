@@ -1,6 +1,16 @@
 import React from "react";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-function Card({_id,link,name,likes,owner,onCardClick,currentUser,onCardDelete}) {
+function Card({_id,link,name,likes,owner,onCardClick, onCardDelete, onCardLike}) {
+  const currentUser = React.useContext(CurrentUserContext);
+
+  const card = {
+    _id: _id,
+    link: link,
+    name: name,
+    owner: owner,
+    likes: likes,
+  };
 
   const isOwn = owner._id === currentUser._id;
 
@@ -17,7 +27,11 @@ function Card({_id,link,name,likes,owner,onCardClick,currentUser,onCardDelete}) 
   }
 
   function handleDeleteClick() {
-    onCardDelete();
+    onCardDelete(card);
+  }
+
+  function handleLikeClick() {
+    onCardLike(card);
   }
 
   return (
@@ -27,7 +41,7 @@ function Card({_id,link,name,likes,owner,onCardClick,currentUser,onCardDelete}) 
       <div className="photo-grid__info">
         <h2 className="photo-grid__title">{name}</h2>
         <div className="photo-grid__like-container">
-          <button type="button" className={cardLikeButtonClassName}></button>
+          <button type="button" className={cardLikeButtonClassName} onClick={handleLikeClick}></button>
           <p className="photo-grid__like-amount">{likes.length}</p>
         </div>
       </div>
