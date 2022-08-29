@@ -18,7 +18,6 @@ function App() {
   const [isDeleteCardPopupOpen, setDeleteCardPopupOpen] = React.useState(false);
   // ----------------------------------------------------------------------------
 
-
   //--------Состояния текущего пользователя, карточки и выбранная карточка-------
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
@@ -58,7 +57,6 @@ function App() {
 
   // ----------------------------------------------------------------------------
 
-
   //--------Функция обрабатывающая нажатие кнопки закрытия ----------------------
   function closeAllPopups() {
     setIsPopupAvatarOpen(false);
@@ -69,7 +67,6 @@ function App() {
     setLoading(false);
   }
   //-----------------------------------------------------------------------------
-
 
   //--------Функции обрабатывающие Сабмиты --------------------------------------
   function handleUpdateUser({ name, status }) {
@@ -129,7 +126,6 @@ function App() {
   }
 //-----------------------------------------------------------------------------
 
-
   React.useEffect(() => {
     const promises = [api.getUserInfo(), api.getInitialCards()];
 
@@ -140,7 +136,6 @@ function App() {
       })
       .catch((err) => console.log(`Error ${err}`));
   }, []);
-
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -166,7 +161,6 @@ function App() {
           isLoading={isLoading}
         />
 
-        
         <EditProfilePopup
           isOpen={isPopupEditOpen}
           onClose={closeAllPopups}
@@ -174,7 +168,6 @@ function App() {
           isLoading={isLoading}
         />
         
-
         <AddPlacePopup
           isOpen={isPopupAddOpen}
           onClose={closeAllPopups}
@@ -190,7 +183,6 @@ function App() {
           isLoading={isLoading}
         />
         
-
         <ImagePopup
           card={selectedCard}
           isOpen={selectedCard.isOpen}
